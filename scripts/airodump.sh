@@ -20,7 +20,12 @@ f_logging(){
   esac
 }
 
+f_update_oui(){
+  airodump-ng-oui-update &> /dev/null
+}
+
 f_airodump(){
+  f_update_oui
 
   #check to see if mon0 active
   f_check_mon
