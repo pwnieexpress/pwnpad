@@ -36,7 +36,7 @@ f_confirm_and_do_update(){
     if [ ! -w /system ]; then
       local remount=yes
       mount -o rw,remount /system
-   fi
+  fi
     /opt/pwnix/chef/update.sh
     if [ "remount" = "yes" ]; then
       mount -o ro,remount /system
