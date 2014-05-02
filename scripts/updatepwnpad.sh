@@ -31,7 +31,16 @@ f_one_or_two(){
 f_confirm_and_do_update(){
   if [ $(f_one_or_two) -eq 1 ]; then
     echo "Starting Update..."
+    #if /system is mount ro we mount it rw for the update then back to safe
+    #there is no reason users need /system mounted rw
+    if [ ! -w /system ]; then
+      local remount=yes
+      mount -o rw,remount /system
+   fi
     /opt/pwnix/chef/update.sh
+    if [ "remount" = "yes" ]; then
+      mount -o ro,remount /system
+    fi
     echo
     echo "Congratulations your Pwn Pad has been updated!"
     echo "The current version is:"
