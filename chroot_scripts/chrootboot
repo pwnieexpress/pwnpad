@@ -3,6 +3,15 @@
 # Chroot boot script to start chroot environment when Android starts and start
 # proper services.
 
+#allow toggle of developer mode to allow for easier development
+DEV_MODE:=0
+
+if [ "DEV_MODE" = "0" ]; then
+	echo "WARNING!!! WARNING!!! WARNING!!!"
+	echo "Developer mode active, critical system components can be damaged."
+	echo "DANGER: please disable developer mode"
+fi
+
 # Use the fourth loopback device to leave the first couple open
 export LOOP_BACK=/dev/block/loop4
 export SOURCE_IMG=/data/local/kali_img/kali.img
@@ -14,6 +23,7 @@ echo "Mounting kali.img file..."
 cat /proc/cpuinfo |grep grouper &> /dev/null
 pad_old_or_new=`echo $?`
 
+# linux doesn't require manually creating a loop for a while now, I think we can avoid that step
 # If pad_old_or_new = 1 then current device is New Pad
 if [ $pad_old_or_new -eq 1 ]; then
   # New Pad mounting process:
@@ -33,15 +43,19 @@ mount -t devpts devpts $NEW_ROOT/dev/pts # May not be needed
 mount -t proc proc $NEW_ROOT/proc
 mount -t sysfs sysfs $NEW_ROOT/sys
 
-# Remount the system partition with the rw flag set
-mount -o remount,rw -t yaffs /dev/block/mtdblock3 /system
+if [ "DEV_MODE" = "0" ]; then
+	# Remount the system partition with the rw flag set
+	mount -o remount,rw -t yaffs /dev/block/mtdblock3 /system
+	mount -o bind /system $NEW_ROOT/system
+if
 
 # Mount the various Android filesystems in the chroot environment for access
-mount -o bind /system $NEW_ROOT/system
 mount -o bind /sdcard $NEW_ROOT/sdcard
 
 echo "Finished mounting filesystems."
 
+#this should probably be done when starting things like ettercap, not here
+#and it should almost certainly be turned off immediately after
 sysctl -w net.ipv4.ip_forward=1 &> /dev/null
 
 # Setup some environment variables for the shell environment.
@@ -54,6 +68,7 @@ export TERM=xterm-color
 
 # O: copy mounts so chroot can see what's mounted:
 # S: Is this actually the same format / file?
+# ZC: probably, but if possible/available it's better to symlink /etc/mtab to /proc/self/mounts most likely
 chroot $NEW_ROOT /bin/cp /proc/mounts /etc/mtab
 
 chroot $NEW_ROOT /etc/init.d/cron start
