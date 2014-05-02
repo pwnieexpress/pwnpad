@@ -8,7 +8,7 @@ f_identify_device(){
   # Checking to see if this is the old pad or the new pad:
   cat /proc/cpuinfo |grep grouper &> /dev/null
   pad_old_or_new=`echo $?`
-  
+
   # If pad_old_or_new = 1 then current device is New Pad
   if [ $pad_old_or_new -eq 1 ]; then
 
