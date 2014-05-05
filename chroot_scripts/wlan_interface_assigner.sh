@@ -43,7 +43,7 @@ case $DEVICE in
 
     # Re-enable Android wifi manager
     svc wifi enable
-
+    ;;
   # Fix for old Pwn Pad
   Pwn\ Pad\ 2013)
 
@@ -79,5 +79,5 @@ case $DEVICE in
 
     # Re-enable Android wifi manager
     svc wifi enable
-
+    ;;
 esac
