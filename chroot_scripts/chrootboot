@@ -26,9 +26,11 @@ case $DEVICE in
     # Mount chroot for new Pwn Pad and Pwn Phone
     losetup $LOOP_BACK $SOURCE_IMG
     mount -t ext4 $LOOP_BACK $NEW_ROOT
+    ;;
   Pwn\ Pad\ 2013)
     # Mount chroot for old Pwn Pad
     mount -o loop -t ext4 $SOURCE_IMG $NEW_ROOT
+    ;;
 esac
 
 # Mount other filesystems for chroot environment
@@ -40,7 +42,7 @@ mount -t sysfs sysfs $NEW_ROOT/sys
 if [ "DEV_MODE" = "0" ]; then
   # Remount system partition with rw flag set
   mount -o remount,rw -t yaffs /dev/block/mtdblock3 /system
-if
+fi
 
 # Mount Android filesystems for chroot environment
 mount -o bind /sdcard $NEW_ROOT/sdcard
@@ -48,7 +50,8 @@ mount -o bind /system $NEW_ROOT/system
 
 # TODO: This should probably be done when starting things like ettercap, not here
 # and it should almost certainly be turned off immediately after
-sysctl -w net.ipv4.ip_forward=1 &> /dev/null
+# TEST: This happens in bootpwn
+# sysctl -w net.ipv4.ip_forward=1 &> /dev/null
 
 # Setup environment variables for shell environment.
 export HOME=/root
@@ -58,9 +61,10 @@ export TERM=xterm-color
 # Run script to assign interfaces at system startup (wlan0 internal, wlan1 TP-Link)
 . /system/bin/wlan_interface_assigner.sh
 
-# Copy mounts such that chroot can see what is mounted
+# Copy mounts so chroot can see what is mounted
 # TODO: Check out symlink /etc/mtab to /proc/self/mounts instead
-chroot $NEW_ROOT /bin/cp /proc/mounts /etc/mtab
+# TEST: This happens in bootpwn
+# chroot $NEW_ROOT /bin/cp /proc/mounts /etc/mtab
 
 # Start services in chroot environment
 chroot $NEW_ROOT /etc/init.d/cron start
