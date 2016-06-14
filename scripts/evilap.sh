@@ -107,8 +107,10 @@ f_preplaunch(){
   ln -s /dev/tun /dev/net/tun &> /dev/null
   killall airbase-ng &> /dev/null
   killall dhcpd &> /dev/null
-  iptables --flush
-  iptables --table nat --flush
+  #iptables --flush
+  #iptables --table nat --flush
+  # test this one if flushing
+  #iptables --table mangle --flush
 }
 
 f_logname(){
@@ -133,7 +135,10 @@ f_evilap(){
   if [ -n "${interface}" ]; then
     #IP forwarding and iptables routing using internet connection
     printf 1 > /proc/sys/net/ipv4/ip_forward
-    iptables -t nat -A POSTROUTING -o ${interface} -j MASQUERADE
+    #no flush rule
+    iptables -t nat -A natctrl_nat_POSTROUTING -o ${interface} -j MASQUERADE
+    #flush rule
+    #iptables -t nat -A POSTROUTING -o ${interface} -j MASQUERADE
   fi
 
   tail -f $logname
