@@ -45,7 +45,7 @@ selinuxfs() {
 
 f_start_ssh(){
   printf "[+] Starting SSH server...\n"
-  service ssh start
+  sudo su - pwnie service ssh start
   selinuxfs unlock
   /system/bin/setenforce 0 > /dev/null 2>&1
   selinuxfs lock
