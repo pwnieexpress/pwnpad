@@ -5,7 +5,7 @@ PS1=${PS1//@\\h/@airodump}
 clear
 
 . /opt/pwnix/pwnpad-scripts/px_functions.sh
-
+COMMAND_RUN=""
 f_run(){
 
   # Check for OUI
@@ -17,19 +17,24 @@ f_run(){
   #we have a monitor interface now, so set traps to cleanup
   trap f_cleanup INT
   trap f_cleanup KILL
+  trap f_hangup SIGHUP
 
   STD_OPTS="-C0 --manufacturer"
   if [ $opt_log -eq 1 ]; then
     if [ $GPS_STATUS -eq 0 ]; then
-      airodump-ng $STD_OPTS --gpsd -w airodump wlan1mon
+      COMMAND_RUN="airodump-ng ${STD_OPTS} --gpsd -w /opt/pwnix/captures/wireless/airodump wlan1mon"
+      airodump-ng $STD_OPTS --gpsd -w /opt/pwnix/captures/wireless/airodump wlan1mon
     else
-      airodump-ng $STD_OPTS -w airodump wlan1mon
+      COMMAND_RUN="airodump-ng ${STD_OPTS} -w /opt/pwnix/captures/wireless/airodump wlan1mon"
+      airodump-ng $STD_OPTS -w /opt/pwnix/captures/wireless/airodump wlan1mon
     fi
 
   elif [ $opt_log -eq 2 ]; then
     if [ $GPS_STATUS -eq 0 ]; then
+      COMMAND_RUN="airodump-ng ${STD_OPTS} --gpsd wlan1mon"
       airodump-ng $STD_OPTS --gpsd wlan1mon
     else
+      COMMAND_RUN="airodump-ng ${STD_OPTS} wlan1mon"
       airodump-ng $STD_OPTS wlan1mon
     fi
   fi
@@ -94,6 +99,11 @@ f_gps_toggle(){
       ;;
     *)f_gps_toggle ;;
   esac
+}
+
+f_hangup(){
+  pkill $COMMAND_RUN
+  exit 1
 }
 
 f_cleanup(){

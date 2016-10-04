@@ -27,7 +27,6 @@ f_gps_check(){
 
 f_cleanup(){
   f_mon_disable
-
   if [ $GPS_STATUS -eq 0 ]; then
     killall -9 gpsd
   fi
@@ -114,6 +113,13 @@ f_endmsg(){
   cd "${LOGDIR}" &> /dev/null
 }
 
+f_hangup(){
+  f_pulse_restore
+  pkill -f '/usr/bin/kismet_client'
+  pkill -f '/usr/bin/kismet_server -t Kismet'
+  exit 1
+}
+
 f_mon_enable
 if [ "$?" = "0" ]; then
   LOGDIR="/opt/pwnix/captures/wireless/"
@@ -127,6 +133,11 @@ if [ "$?" = "0" ]; then
   if [ "${EXIT_NOW}" = 0 ]; then
     f_uicheck
     f_gps_check
+
+    trap f_hangup INT
+    trap f_hangup KILL
+    trap f_hangup SIGHUP
+
     kismet
     f_cleanup
   fi

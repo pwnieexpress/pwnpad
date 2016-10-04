@@ -56,6 +56,8 @@ f_run(){
 
   #ettercap fails if the interface is down
   ip link set $interface up
+  
+  trap f_hangup SIGHUP
 
    # Check for Kali1 version for target syntax change...
   dpkg --list ettercap-common | grep -q 1:0.8.2-2~kali1
@@ -78,6 +80,11 @@ f_run(){
   fi
 
   ettercap -i $interface -T ${ssl} -q ${log} -M arp:remote ${syntax}/$gw/ ${syntax}/$target1/
+}
+
+f_hangup(){
+  pkill -f 'ettercap -i ${interface} -T ${ssl} -q ${log} -M arp:remote ${syntax}/${gw}/ ${syntax}/${target1}/'
+  exit 1
 }
 
 f_banner

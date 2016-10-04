@@ -14,6 +14,8 @@ f_savecap(){
   printf "2. No\n\n"
   read -p "Choice [1-2]: " saveyesno
 
+  trap f_hangup SIGHUP
+
   case $saveyesno in
     1) f_yes ;;
     2) f_no ;;
@@ -28,6 +30,11 @@ f_yes(){
 
 f_no(){
   tcpdump -s0 -vvv -e -i $interface
+}
+
+f_hangup(){
+  pkill -f 'tcpdump -s0 -vvv -e -i ${interface}'
+  exit 1
 }
 
 f_interface
